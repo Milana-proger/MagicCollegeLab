@@ -60,7 +60,7 @@ public class JsonMissionParser implements MissionParser {
     }
 
     @Override
-    public boolean canBeParsed(String data) {
+    public boolean canBeParsedFromData(String data) {
         String dataTrimmed = data.trim();
         return dataTrimmed.startsWith("{") && dataTrimmed.endsWith("}");
     }

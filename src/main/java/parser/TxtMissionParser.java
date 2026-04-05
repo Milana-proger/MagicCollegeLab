@@ -70,7 +70,7 @@ public class TxtMissionParser implements MissionParser {
     }
 
     @Override
-    public boolean canBeParsed(String data) {
+    public boolean canBeParsedFromData(String data) {
         String[] lines = data.split("\n");
         for (int i=0; i<lines.length; i++) {
             String line = lines[i].trim();
