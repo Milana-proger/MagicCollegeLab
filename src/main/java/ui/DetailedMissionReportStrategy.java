@@ -4,8 +4,13 @@ import model.Mission;
 import model.Sorcerer;
 import model.Technique;
 
-public class MissionDisplay {
-    public static String format(Mission mission) {
+public class DetailedMissionReportStrategy implements MissionReportStrategy {
+
+    public String getFormatName() {
+        return "Detailed report";
+    }
+
+    public String generateMission(Mission mission) {
         StringBuilder sb = new StringBuilder();
 
         sb.append("╔════════════════════════════════════════════════════════════╗\n");

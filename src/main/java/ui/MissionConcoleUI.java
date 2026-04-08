@@ -7,7 +7,6 @@ import parser.MissionParserFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.util.Scanner;
 
@@ -141,12 +140,12 @@ public class MissionConcoleUI {
             int index = fileName.lastIndexOf(".");
             if (index>0) {
                 String fileType = fileName.substring(index);
-                MissionParser parser = missionParser.getMissionParser(fileType);
-                if (!parser.canBeParsed(data)) {
+                MissionParser parser = missionParser.getMissionParserFromExtendtion(fileType);
+                if (!parser.canBeParsedFromData(data)) {
                     System.out.println("Не удалось распарсить файл.");
                     return false;
                 } Mission mission = parser.parse(data);
-                String missionInString = MissionDisplay.format(mission);
+                String missionInString = DetailedMissionReportStrategy.format(mission);
                 System.out.println(missionInString);
             }
         } catch (MissionParserException e) {

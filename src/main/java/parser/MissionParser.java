@@ -5,5 +5,6 @@ import model.Mission;
 
 public interface MissionParser {
     Mission parse(String data) throws MissionParserException;
-    boolean canBeParsed(String data);
+    boolean canBeParsedFromData(String data);
+    boolean canBeParsedFromExtendtion(String extendtion);
 }
