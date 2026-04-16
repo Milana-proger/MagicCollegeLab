@@ -1,9 +1,6 @@
 package exception;
 
-public class MissionParserException extends Exception {
-    public MissionParserException() {
-    }
-
+public class MissionParserException extends MissionException {
     public MissionParserException(String message) {
         super(message);
     }

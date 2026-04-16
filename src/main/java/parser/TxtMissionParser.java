@@ -58,7 +58,7 @@ public class TxtMissionParser implements MissionParser {
                 Long longValue = Long.parseLong(value);
                 mission.setDamageCost(longValue);
             } catch (NumberFormatException e) {
-                mission.setDamageCost(0);
+                mission.setDamageCost(null);
             }
                 break;
             case "curse.name": mission.getCurse().setName(value);
@@ -83,6 +83,11 @@ public class TxtMissionParser implements MissionParser {
             }
         }
         return true;
+    }
+
+    @Override
+    public boolean canBeParsedFromExtendtion(String extendtion) {
+        return extendtion != null && extendtion.trim().equalsIgnoreCase(".txt");
     }
 
     private void sorcerersInMission(List<String> sorcerersKey, List<String> sorcerersValue, Mission mission) {
@@ -130,7 +135,7 @@ public class TxtMissionParser implements MissionParser {
                 try {
                     Long longDamage = Long.parseLong(techniquesValue.get(i));
                     technique.setDamage(longDamage);
-                } catch (NumberFormatException e) {technique.setDamage(0);
+                } catch (NumberFormatException e) {technique.setDamage(null);
                 }
             }
         }

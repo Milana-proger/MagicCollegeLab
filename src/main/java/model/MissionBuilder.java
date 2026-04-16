@@ -1,0 +1,116 @@
+package model;
+
+import exception.MissionBuilderException;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class MissionBuilder {
+    private String missionId;
+    private String date;
+    private String location;
+    private String outcome;
+    private Long damageCost;
+    private Curse curse;
+    private List<Sorcerer> sorcerers = new ArrayList<>();
+    private List<Technique> techniques = new ArrayList<>();
+    private String note;
+    private EconomicAssessment economicAssessment;
+
+    public MissionBuilder withMissionId(String id) {
+        this.missionId = id;
+        return this;
+    }
+
+    public MissionBuilder setDate(String date) {
+        this.date = date;
+        return this;
+    }
+
+    public MissionBuilder setLocation(String location) {
+        this.location = location;
+        return this;
+    }
+
+    public MissionBuilder setOutcome(String outcome) {
+        this.outcome = outcome;
+        return this;
+    }
+
+    public MissionBuilder setDamageCost(Long damageCost) {
+        this.damageCost = damageCost;
+        return this;
+    }
+
+    public MissionBuilder setCurse(Curse curse) {
+        this.curse = curse;
+        return this;
+    }
+
+    public MissionBuilder setNote(String note) {
+        this.note = note;
+        return this;
+    }
+
+    public MissionBuilder addSorcerer(Sorcerer sorcerer) {
+        this.sorcerers.add(sorcerer);
+        return this;
+    }
+
+    public MissionBuilder addSorcerers(List<Sorcerer> sorcerers) {
+        this.sorcerers.addAll(sorcerers);
+        return this;
+    }
+
+    public MissionBuilder addTechnique(Technique technique) {
+        this.techniques.add(technique);
+        return this;
+    }
+
+    public MissionBuilder addTechniques(List<Technique> techniques) {
+        this.techniques.addAll(techniques);
+        return this;
+    }
+
+    public MissionBuilder setEconomicAssessment(EconomicAssessment economicAssessment) {
+        this.economicAssessment = economicAssessment;
+        return this;
+    }
+
+    public void validateRequiredFields() {
+        List<String> emptyFields = new ArrayList<>();
+        if (missionId == null || missionId.trim().isEmpty()) {
+            emptyFields.add("missionId");
+        }
+        if (date == null || date.trim().isEmpty()) {
+            emptyFields.add("date");
+        }
+        if (location == null || location.trim().isEmpty()) {
+            emptyFields.add("location");
+        }
+        if (outcome == null || outcome.trim().isEmpty()) {
+            emptyFields.add("outcome");
+        }
+        if (curse == null) {
+            emptyFields.add("curse");
+        }
+        if (!emptyFields.isEmpty()) {
+            throw new MissionBuilderException("Обязательные поля для миссии " + String.join(", ", emptyFields) + " отсутствуют");
+        }
+    }
+
+    public Mission build() {
+        validateRequiredFields();
+        Mission mission = new Mission();
+        mission.setMissionId(this.missionId);
+        mission.setDate(this.date);
+        mission.setLocation(this.location);
+        mission.setOutcome(this.outcome);
+        mission.setDamageCost(this.damageCost);
+        mission.setCurse(this.curse);
+        mission.setNote(this.note);
+        mission.setSorcerers(this.sorcerers);
+        mission.setTechniques(this.techniques);
+        return mission;
+    }
+}

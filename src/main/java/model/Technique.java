@@ -4,9 +4,9 @@ public class Technique {
     private String name;
     private String type;
     private String owner;
-    private long damage;
+    private Long damage;
 
-    public Technique(String name, String type, String owner, long damage) {
+    public Technique(String name, String type, String owner, Long damage) {
         this.name = name;
         this.type = type;
         this.owner = owner;
@@ -49,11 +49,11 @@ public class Technique {
         this.owner = owner;
     }
 
-    public long getDamage() {
+    public Long getDamage() {
         return damage;
     }
 
-    public void setDamage(long damage) {
+    public void setDamage(Long damage) {
         this.damage = damage;
     }
 }

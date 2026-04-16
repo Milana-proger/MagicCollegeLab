@@ -1,9 +1,14 @@
 package ui;
 
+import analysis.BaseMissionAnalyzer;
+import analysis.MissionAnalyzer;
+import exception.MissionException;
 import exception.MissionParserException;
 import model.Mission;
 import parser.MissionParser;
 import parser.MissionParserFactory;
+import source.FileMissionDataSourse;
+import source.MissionDataSourse;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,6 +17,8 @@ import java.util.Scanner;
 
 public class MissionConcoleUI {
     private MissionParserFactory missionParser;
+    private MissionDataSourse missionDataSourse;
+    private MissionAnalyzer missionAnalyzer;
     private Scanner scanner;
 
     private static final String RESET = "\u001B[0m";
@@ -24,8 +31,17 @@ public class MissionConcoleUI {
     private static final String WHITE = "\u001B[37m";
     private static final String BOLD = "\u001B[1m";
 
-    public MissionConcoleUI() {
-        this.missionParser = new MissionParserFactory();
+    public MissionConcoleUI(MissionParserFactory missionParserFactory, MissionAnalyzer missionAnalyzer) {
+        this.missionParser = missionParserFactory;
+        this.scanner = new Scanner(System.in);
+        this.missionAnalyzer = missionAnalyzer;
+        this.missionDataSourse = new FileMissionDataSourse();
+    }
+
+    public MissionConcoleUI(MissionParserFactory missionParser, MissionDataSourse missionDataSourse, MissionAnalyzer missionAnalyzer) {
+        this.missionParser = missionParser;
+        this.missionDataSourse = missionDataSourse;
+        this.missionAnalyzer = missionAnalyzer;
         this.scanner = new Scanner(System.in);
     }
 
@@ -80,19 +96,20 @@ public class MissionConcoleUI {
     private void analyzeFile() {
         System.out.print(BLUE + "▶️ Введите путь к файлу миссии: " + RESET);
         String filePath = scanner.nextLine().trim();
-
-        File file = new File(filePath);
-        if (!file.exists()) {
-            System.out.println(RED + "❌ Файл не найден: " + filePath + RESET);
-            return;
+        try {
+            String data = missionDataSourse.load(filePath);
+            MissionParser parser = missionParser.getMissionParserFromFileName(filePath);
+            if (parser.canBeParsedFromData(data)) {
+                Mission mission = parser.parse(data);
+                missionAnalyzer.addMissionToAnalyze(mission);
+                missionAnalyzer.analyze();
+                missionAnalyzer.resetAnalyzer();
+            } else {
+                System.out.println("Формат даннфх не поддерживается!");
+            }
+        } catch (MissionException e) {
+            System.out.println("Ошибка обработки файла: " + e.getMessage());
         }
-
-        if (!file.isFile()) {
-            System.out.println(RED + "❌ Указанный путь не является файлом." + RESET);
-            return;
-        }
-
-        processFile(file);
     }
 
     private void analyzeDirectory() {
@@ -105,10 +122,7 @@ public class MissionConcoleUI {
             return;
         }
 
-        File[] files = directory.listFiles((dir, name) -> {
-            String lower = name.toLowerCase();
-            return lower.endsWith(".json") || lower.endsWith(".xml") || lower.endsWith(".txt");
-        });
+        File[] files = directory.listFiles();
 
         if (files == null || files.length == 0) {
             System.out.println(YELLOW + "⚠ В папке не найдено файлов миссий (поддерживаются .json, .xml, .txt)" + RESET);
@@ -120,10 +134,17 @@ public class MissionConcoleUI {
         int failedFiles = 0;
         for (int i=0; i<files.length; i++) {
             File file = files[i];
-            System.out.println(YELLOW + "\n[" + (i+1) + "/" + files.length + "] Анализ: " + file.getName() + RESET);
-            if (processFile(file)) {
-                succeededFiles++;
-            } else {
+            try {
+                String data = missionDataSourse.load(file.getAbsolutePath());
+                MissionParser parser = missionParser.getMissionParserFromFileName(file.getName());
+                if (parser.canBeParsedFromData(data)) {
+                    Mission mission = parser.parse(data);
+                    missionAnalyzer.addMissionToAnalyze(mission);
+                    succeededFiles++;
+                } else {
+                    failedFiles++;
+                }
+            } catch (MissionException e) {
                 failedFiles++;
             }
         }
@@ -131,35 +152,8 @@ public class MissionConcoleUI {
         System.out.println(GREEN + "✅ Успешно: " + succeededFiles + RESET);
         System.out.println(RED + "❌ Ошибок: " + failedFiles + RESET);
         System.out.println(BOLD + "═════════════════════════════════════" + RESET);
-    }
-
-    private boolean processFile(File file) {
-        try {
-            String data = new String(Files.readAllBytes(file.toPath()), "UTF-8");
-            String fileName = file.getName();
-            int index = fileName.lastIndexOf(".");
-            if (index>0) {
-                String fileType = fileName.substring(index);
-                MissionParser parser = missionParser.getMissionParserFromExtendtion(fileType);
-                if (!parser.canBeParsedFromData(data)) {
-                    System.out.println("Не удалось распарсить файл.");
-                    return false;
-                } Mission mission = parser.parse(data);
-                String missionInString = DetailedMissionReportStrategy.format(mission);
-                System.out.println(missionInString);
-            }
-        } catch (MissionParserException e) {
-            System.out.println(RED + "ОШИБКА: " + e.getMessage());
-            return false;
-        } catch (IOException e) {
-            System.out.println(RED + "Ошибка чтения файла: " + file.getName());
-            return false;
-        } catch (Exception e) {
-            System.out.println("Непредвиденная ошибка: " + e.getMessage());
-            return false;
-        }
-
-        return true;
+        missionAnalyzer.analyze();
+        missionAnalyzer.resetAnalyzer();
     }
 
     public void start() {

@@ -1,8 +1,17 @@
+import analysis.BaseMissionAnalyzer;
+import analysis.MissionAnalyzer;
+import parser.*;
 import ui.MissionConcoleUI;
 
 public class Main {
     public static void main(String[] args) {
-        MissionConcoleUI missionConcoleUI = new MissionConcoleUI();
+        MissionParserFactory missionParserFactory = new MissionParserFactory();
+        missionParserFactory.registrMissionParser(new JsonMissionParser());
+        missionParserFactory.registrMissionParser(new TxtMissionParser());
+        missionParserFactory.registrMissionParser(new XmlMissionParser());
+        missionParserFactory.registrMissionParser(new YamlMissionParser());
+        MissionAnalyzer missionAnalyzer = new BaseMissionAnalyzer();
+        MissionConcoleUI missionConcoleUI = new MissionConcoleUI(missionParserFactory, missionAnalyzer);
         missionConcoleUI.start();
     }
 }

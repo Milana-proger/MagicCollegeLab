@@ -8,11 +8,12 @@ public class Mission {
     private String date;
     private String location;
     private String outcome;
-    private long damageCost;
+    private Long damageCost;
     private Curse curse;
     private List<Sorcerer> sorcerers;
     private List<Technique> techniques;
     private String note;
+    private EconomicAssessment economicAssessment;
 
     public Mission() {
         this.sorcerers = new ArrayList<>();
@@ -51,11 +52,11 @@ public class Mission {
         this.outcome = outcome;
     }
 
-    public long getDamageCost() {
+    public Long getDamageCost() {
         return damageCost;
     }
 
-    public void setDamageCost(long damageCost) {
+    public void setDamageCost(Long damageCost) {
         this.damageCost = damageCost;
     }
 
@@ -91,6 +92,14 @@ public class Mission {
         this.note = note;
     }
 
+    public EconomicAssessment getEconomicAssessment() {
+        return economicAssessment;
+    }
+
+    public void setEconomicAssessment(EconomicAssessment economicAssessment) {
+        this.economicAssessment = economicAssessment;
+    }
+
     @Override
     public String toString() {
         return "Mission{" +
@@ -112,5 +121,9 @@ public class Mission {
 
     public void addTechnique(Technique technique) {
         this.techniques.add(technique);
+    }
+
+    public static MissionBuilder builder() {
+        return new MissionBuilder();
     }
 }
