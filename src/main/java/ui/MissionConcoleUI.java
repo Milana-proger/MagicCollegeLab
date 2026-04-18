@@ -159,6 +159,10 @@ public class MissionConcoleUI {
                 failedFiles++;
             }
         }
+        System.out.println(BOLD + "\n════════════ СТАТИСТИКА ════════════" + RESET);
+        System.out.println(GREEN + " Успешно: " + succeededFiles + RESET);
+        System.out.println(RED + " Ошибок: " + failedFiles + RESET);
+        System.out.println(BOLD + "═════════════════════════════════════" + RESET);
         missionAnalyzer.analyze();
         missionAnalyzer.resetAnalyzer();
     }
