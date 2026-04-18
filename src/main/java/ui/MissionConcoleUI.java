@@ -1,9 +1,7 @@
 package ui;
 
-import analysis.BaseMissionAnalyzer;
 import analysis.MissionAnalyzer;
 import exception.MissionException;
-import exception.MissionParserException;
 import model.Mission;
 import parser.MissionParser;
 import parser.MissionParserFactory;
@@ -11,8 +9,6 @@ import source.FileMissionDataSourse;
 import source.MissionDataSourse;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Scanner;
 
 public class MissionConcoleUI {
@@ -64,7 +60,7 @@ public class MissionConcoleUI {
         System.out.println("│  " + GREEN + "3" + CYAN + ".  О программе                                   │");
         System.out.println("│  " + RED + "q" + CYAN + ".  Выход                                         │");
         System.out.println("└────────────────────────────────────────────────────┘");
-        System.out.print(RESET + BOLD + "\n▶️ Выберите действие: " + RESET);
+        System.out.print(RESET + BOLD + "\n▶ Выберите действие: " + RESET);
     }
 
     private void printAbout() {
@@ -94,7 +90,7 @@ public class MissionConcoleUI {
     }
 
     private void analyzeFile() {
-        System.out.print(BLUE + "▶️ Введите путь к файлу миссии: " + RESET);
+        System.out.print(BLUE + "▶ Введите путь к файлу миссии: " + RESET);
         String filePath = scanner.nextLine().trim();
         try {
             String data = missionDataSourse.load(filePath);
@@ -105,7 +101,15 @@ public class MissionConcoleUI {
                 missionAnalyzer.analyze();
                 missionAnalyzer.resetAnalyzer();
             } else {
-                System.out.println("Формат даннфх не поддерживается!");
+                parser = missionParser.getMissionParserFromData(data);
+                if (parser.canBeParsedFromData(data)) {
+                    Mission mission = parser.parse(data);
+                    missionAnalyzer.addMissionToAnalyze(mission);
+                    missionAnalyzer.analyze();
+                    missionAnalyzer.resetAnalyzer();
+                } else {
+                    System.out.println("Формат данных не поддерживается!");
+                }
             }
         } catch (MissionException e) {
             System.out.println("Ошибка обработки файла: " + e.getMessage());
@@ -118,7 +122,7 @@ public class MissionConcoleUI {
 
         File directory = new File(dirPath);
         if (!directory.exists() || !directory.isDirectory()) {
-            System.out.println(RED + "❌ Папка не найдена: " + dirPath + RESET);
+            System.out.println(RED + " Папка не найдена: " + dirPath + RESET);
             return;
         }
 
@@ -129,10 +133,10 @@ public class MissionConcoleUI {
             return;
         }
 
-        System.out.println(GREEN + "\n📁 Найдено файлов: " + files.length + RESET);
+        System.out.println(GREEN + "\n Найдено файлов: " + files.length + RESET);
         int succeededFiles = 0;
         int failedFiles = 0;
-        for (int i=0; i<files.length; i++) {
+        for (int i = 0; i < files.length; i++) {
             File file = files[i];
             try {
                 String data = missionDataSourse.load(file.getAbsolutePath());
@@ -142,15 +146,22 @@ public class MissionConcoleUI {
                     missionAnalyzer.addMissionToAnalyze(mission);
                     succeededFiles++;
                 } else {
-                    failedFiles++;
+                    parser = missionParser.getMissionParserFromData(data);
+                    if (parser.canBeParsedFromData(data)) {
+                        Mission mission = parser.parse(data);
+                        missionAnalyzer.addMissionToAnalyze(mission);
+                        succeededFiles++;
+                    } else {
+                        failedFiles++;
+                    }
                 }
             } catch (MissionException e) {
                 failedFiles++;
             }
         }
         System.out.println(BOLD + "\n════════════ СТАТИСТИКА ════════════" + RESET);
-        System.out.println(GREEN + "✅ Успешно: " + succeededFiles + RESET);
-        System.out.println(RED + "❌ Ошибок: " + failedFiles + RESET);
+        System.out.println(GREEN + " Успешно: " + succeededFiles + RESET);
+        System.out.println(RED + " Ошибок: " + failedFiles + RESET);
         System.out.println(BOLD + "═════════════════════════════════════" + RESET);
         missionAnalyzer.analyze();
         missionAnalyzer.resetAnalyzer();
@@ -162,16 +173,21 @@ public class MissionConcoleUI {
             printMenu();
             String input = scanner.nextLine().trim();
             switch (input) {
-                case "1": analyzeFile();
-                break;
-                case "2": analyzeDirectory();
-                break;
-                case "3": printAbout();
-                break;
+                case "1":
+                    analyzeFile();
+                    break;
+                case "2":
+                    analyzeDirectory();
+                    break;
+                case "3":
+                    printAbout();
+                    break;
                 case "q":
-                case "Q": System.out.println("Миссия окончена");
-                return;
-                default: System.out.println("Данные введены неверно");
+                case "Q":
+                    System.out.println("Миссия окончена");
+                    return;
+                default:
+                    System.out.println("Данные введены неверно");
             }
         }
     }

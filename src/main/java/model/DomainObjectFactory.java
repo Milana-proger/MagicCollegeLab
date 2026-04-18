@@ -1,6 +1,7 @@
 package model;
 
 import exception.MissionBuilderException;
+import model.*;
 
 public class DomainObjectFactory {
     public Curse createCurse(String name, String threatLevel) {
@@ -110,6 +111,20 @@ public class DomainObjectFactory {
                                                Integer missing,
                                                String publicExposureRisk) {
         return new CivilianImpact(evacuated, injured, missing, publicExposureRisk);
+    }
+
+    public EnvironmentConditions createEnvironmentConditions(String weather,
+                                                             String timeOfDay,
+                                                             String visibility,
+                                                             String cursedEnergyDensity) {
+        return createEnvironmentConditions(weather, timeOfDay, visibility, getInteger(cursedEnergyDensity));
+    }
+
+    public EnvironmentConditions createEnvironmentConditions(String weather,
+                                                             String timeOfDay,
+                                                             String visibility,
+                                                             Integer cursedEnergyDensity) {
+        return new EnvironmentConditions(weather, timeOfDay, visibility, cursedEnergyDensity);
     }
 
 

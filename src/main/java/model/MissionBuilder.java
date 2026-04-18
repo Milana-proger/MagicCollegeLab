@@ -1,6 +1,8 @@
 package model;
 
 import exception.MissionBuilderException;
+import model.*;
+import model.Mission;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,7 @@ public class MissionBuilder {
     private List<OperationTimeLine> operationTimeLines = new ArrayList<>();
     private List<EnemyActivity> enemyActivities = new ArrayList<>();
     private CivilianImpact civilianImpact;
+    private EnvironmentConditions environmentConditions;
 
     public MissionBuilder withMissionId(String id) {
         this.missionId = id;
@@ -105,6 +108,11 @@ public class MissionBuilder {
         return this;
     }
 
+    public MissionBuilder setEnvironmentConditions(EnvironmentConditions environmentConditions) {
+        this.environmentConditions = environmentConditions;
+        return this;
+    }
+
     public void validateRequiredFields() {
         List<String> emptyFields = new ArrayList<>();
         if (missionId == null || missionId.trim().isEmpty()) {
@@ -127,9 +135,9 @@ public class MissionBuilder {
         }
     }
 
-    public Mission build() {
+    public model.Mission build() {
         validateRequiredFields();
-        Mission mission = new Mission();
+        model.Mission mission = new Mission();
         mission.setMissionId(this.missionId);
         mission.setDate(this.date);
         mission.setLocation(this.location);

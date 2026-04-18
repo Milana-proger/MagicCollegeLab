@@ -17,6 +17,7 @@ public class Mission {
     private List<OperationTimeLine> operationTimeLines;
     private List<EnemyActivity> enemyActivities;
     private CivilianImpact civilianImpact;
+    private EnvironmentConditions environmentConditions;
 
     public Mission() {
         this.sorcerers = new ArrayList<>();
@@ -125,6 +126,14 @@ public class Mission {
 
     public void setCivilianImpact(CivilianImpact civilianImpact) {
         this.civilianImpact = civilianImpact;
+    }
+
+    public EnvironmentConditions getEnvironmentConditions() {
+        return environmentConditions;
+    }
+
+    public void setEnvironmentConditions(EnvironmentConditions environmentConditions) {
+        this.environmentConditions = environmentConditions;
     }
 
     @Override
