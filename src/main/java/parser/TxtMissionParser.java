@@ -1,84 +1,117 @@
 package parser;
 
 import exception.MissionParserException;
-import model.Curse;
-import model.Mission;
-import model.Sorcerer;
-import model.Technique;
+import model.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TxtMissionParser implements MissionParser {
 
+    private final DomainObjectFactory domainObjectFactory = new DomainObjectFactory();
+
     @Override
     public Mission parse(String data) throws MissionParserException {
-        Mission mission = new Mission();
-        mission.setCurse(new Curse());
-        List<String> sorcerersKey= new ArrayList<>();
-        List<String> sorcerersValue = new ArrayList<>();
-        List<String> techniquesKey= new ArrayList<>();
-        List<String> techniquesValue = new ArrayList<>();
+        Map<String, String> mapMissionData = getMapMissionData(data);
+
+        MissionBuilder missionBuilder = Mission.builder()
+                .withMissionId(mapMissionData.get("missionId"))
+                .setDate(mapMissionData.get("date"))
+                .setLocation(mapMissionData.get("location"))
+                .setOutcome(mapMissionData.get("outcome"))
+                .setDamageCost(getLong(mapMissionData.get("damageCost")))
+                .setNote(mapMissionData.get("note"));
+
+        Curse curse = domainObjectFactory.createCurse(mapMissionData.get("curse.name"),
+                mapMissionData.get("curse.threatLevel"));
+
+        missionBuilder.setCurse(curse)
+                .addSorcerers(getSorcerers(mapMissionData))
+                .addTechniques(getTechniques(mapMissionData));
+
+        return missionBuilder.build();
+    }
+
+    private static Map<String, String> getMapMissionData(String data) {
+        Map<String, String> mapMissionData = new HashMap<>();
         String[] lines = data.split("\n");
-        for (int i=0; i<lines.length; i++) {
+        for (int i = 0; i < lines.length; i++) {
             String line = lines[i].trim();
             if (line.isEmpty()) {
                 continue;
             }
             int index = line.indexOf(':');
-            if (index>0) {
+            if (index > 0) {
                 String key = line.substring(0, index).trim();
-                String value = line.substring(index+1, line.length()).trim();
-                valueInMission(key, value, mission);
-                if (key.startsWith("sorcerer")) {
-                    sorcerersKey.add(key);
-                    sorcerersValue.add(value);
-                } else if (key.startsWith("technique")) {
-                    techniquesKey.add(key);
-                    techniquesValue.add(value);
-                }
+                String value = line.substring(index + 1).trim();
+                mapMissionData.put(key, value);
             }
         }
-        sorcerersInMission(sorcerersKey, sorcerersValue, mission);
-        techniquesInMission(techniquesKey, techniquesValue, mission);
-        return mission;
+        return mapMissionData;
     }
 
-    private void valueInMission(String key, String value, Mission mission) {
-        switch (key) {
-            case "missionId": mission.setMissionId(value);
-            break;
-            case "date": mission.setDate(value);
-                break;
-            case "location": mission.setLocation(value);
-                break;
-            case "outcome": mission.setOutcome(value);
-                break;
-            case "damageCost": try {
-                Long longValue = Long.parseLong(value);
-                mission.setDamageCost(longValue);
-            } catch (NumberFormatException e) {
-                mission.setDamageCost(null);
+    private List<Technique> getTechniques(Map<String, String> mapMissionData) {
+        List<String> techniqueKeys = new ArrayList<>();
+        for (String key : mapMissionData.keySet()) {
+            if (key.startsWith("technique")) {
+                techniqueKeys.add(key);
             }
-                break;
-            case "curse.name": mission.getCurse().setName(value);
-                break;
-            case "curse.threatLevel": mission.getCurse().setThreatLevel(value);
-                break;
-            case "note": mission.setNote(value);
+        }
+
+        int techniquesCount = techniqueKeys.size() / 4;
+        List<Technique> techniques = new ArrayList<>();
+
+        for (int i = 0; i < techniquesCount; i++) {
+            String techniqueKey = "technique[" + i + "]";
+
+            Technique technique = domainObjectFactory.createTechnique(mapMissionData.get(techniqueKey + ".name"),
+                    mapMissionData.get(techniqueKey + ".type"),
+                    mapMissionData.get(techniqueKey + ".owner"),
+                    mapMissionData.get(techniqueKey + ".damage"));
+            techniques.add(technique);
+        }
+        return techniques;
+    }
+
+    private List<Sorcerer> getSorcerers(Map<String, String> mapData) {
+        List<String> sorcerersKey = new ArrayList<>();
+        for (String key : mapData.keySet()) {
+            if (key.startsWith("sorcerer")) {
+                sorcerersKey.add(key);
+            }
+        }
+
+        int sorcerersSize = sorcerersKey.size() / 2;
+        List<Sorcerer> sorcerers = new ArrayList<>();
+        for (int i = 0; i < sorcerersSize; i++) {
+            String sorcererKey = "sorcerer[" + i + "]";
+            Sorcerer sorcerer = domainObjectFactory.createSorcerer(mapData.get(sorcererKey + ".name"),
+                    mapData.get(sorcererKey + ".rank"));
+            sorcerers.add(sorcerer);
+        }
+        return sorcerers;
+    }
+
+    private Long getLong(String s) {
+        try {
+            return Long.parseLong(s);
+        } catch (NumberFormatException e) {
+            return null;
         }
     }
 
     @Override
     public boolean canBeParsedFromData(String data) {
         String[] lines = data.split("\n");
-        for (int i=0; i<lines.length; i++) {
+        for (int i = 0; i < lines.length; i++) {
             String line = lines[i].trim();
             if (line.isEmpty()) {
                 continue;
             }
             int index = line.indexOf(':');
-            if (index<0) {
+            if (index < 0) {
                 return false;
             }
         }
@@ -88,71 +121,5 @@ public class TxtMissionParser implements MissionParser {
     @Override
     public boolean canBeParsedFromExtendtion(String extendtion) {
         return extendtion != null && extendtion.trim().equalsIgnoreCase(".txt");
-    }
-
-    private void sorcerersInMission(List<String> sorcerersKey, List<String> sorcerersValue, Mission mission) {
-        int sorcerersNumber = sorcerersKey.size()/2;
-        List<Sorcerer> sorcerersList = new ArrayList<>();
-        for (int i=0; i<sorcerersNumber; i++) {
-            sorcerersList.add(new Sorcerer());
-        }
-        for (int i=0; i<sorcerersKey.size(); i++) {
-            String key = sorcerersKey.get(i);
-            int index = getIndex(key);
-            if (index == -1 || index>sorcerersNumber) {
-                continue;
-            }
-            Sorcerer sorcerer = sorcerersList.get(index);
-            if (key.endsWith(".name")) {
-                sorcerer.setName(sorcerersValue.get(i));
-            } else if (key.endsWith(".rank")) {
-                sorcerer.setRank(sorcerersValue.get(i));
-            }
-        }
-        mission.setSorcerers(sorcerersList);
-    }
-
-    private void techniquesInMission(List<String> techniquesKey, List<String> techniquesValue, Mission mission) {
-        int techniquesNumber = techniquesKey.size()/4;
-        List<Technique> techniquesList = new ArrayList<>();
-        for (int i=0; i<techniquesNumber; i++) {
-            techniquesList.add(new Technique());
-        }
-        for (int i=0; i<techniquesKey.size(); i++) {
-            String key = techniquesKey.get(i);
-            int index = getIndex(key);
-            if (index == -1 || index>techniquesNumber) {
-                continue;
-            }
-            Technique technique = techniquesList.get(index);
-            if (key.endsWith(".name")) {
-                technique.setName(techniquesValue.get(i));
-            } else if (key.endsWith(".type")) {
-                technique.setType(techniquesValue.get(i));
-            } else if (key.endsWith(".owner")) {
-                technique.setOwner(techniquesValue.get(i));
-            } else if (key.endsWith(".damage")) {
-                try {
-                    Long longDamage = Long.parseLong(techniquesValue.get(i));
-                    technique.setDamage(longDamage);
-                } catch (NumberFormatException e) {technique.setDamage(null);
-                }
-            }
-        }
-        mission.setTechniques(techniquesList);
-    }
-
-    private int getIndex(String input) {
-        int indexStart = input.indexOf('[');
-        int indexEnd = input.indexOf(']');
-        if (indexStart>-1 && indexEnd>-1 && indexEnd>indexStart) {
-            String number = input.substring(indexStart + 1, indexEnd);
-            try {
-                int intNumber = Integer.parseInt(number);
-                return intNumber;
-            } catch (NumberFormatException e) {
-                return -1;
-            }
-        } return -1;
     }
 }

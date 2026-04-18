@@ -16,6 +16,9 @@ public class MissionBuilder {
     private List<Technique> techniques = new ArrayList<>();
     private String note;
     private EconomicAssessment economicAssessment;
+    private List<OperationTimeLine> operationTimeLines = new ArrayList<>();
+    private List<EnemyActivity> enemyActivities = new ArrayList<>();
+    private CivilianImpact civilianImpact;
 
     public MissionBuilder withMissionId(String id) {
         this.missionId = id;
@@ -77,6 +80,31 @@ public class MissionBuilder {
         return this;
     }
 
+    public MissionBuilder addOperationTimeLine(OperationTimeLine operationTimeLine) {
+        this.operationTimeLines.add(operationTimeLine);
+        return this;
+    }
+
+    public MissionBuilder addOperationTimeLines(List<OperationTimeLine> operationTimeLines) {
+        this.operationTimeLines.addAll(operationTimeLines);
+        return this;
+    }
+
+    public MissionBuilder addEnemyActivity(EnemyActivity enemyActivity) {
+        this.enemyActivities.add(enemyActivity);
+        return this;
+    }
+
+    public MissionBuilder addEnemyActivities(List<EnemyActivity> enemyActivities) {
+        this.enemyActivities.addAll(enemyActivities);
+        return this;
+    }
+
+    public MissionBuilder setCivilianImpact(CivilianImpact civilianImpact) {
+        this.civilianImpact = civilianImpact;
+        return this;
+    }
+
     public void validateRequiredFields() {
         List<String> emptyFields = new ArrayList<>();
         if (missionId == null || missionId.trim().isEmpty()) {
@@ -111,6 +139,10 @@ public class MissionBuilder {
         mission.setNote(this.note);
         mission.setSorcerers(this.sorcerers);
         mission.setTechniques(this.techniques);
+        mission.setEnemyActivities(enemyActivities);
+        mission.setOperationTimeLines(operationTimeLines);
+        mission.setEnemyActivities(enemyActivities);
+        mission.setCivilianImpact(civilianImpact);
         return mission;
     }
 }

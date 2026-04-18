@@ -10,6 +10,7 @@ public class Main {
         missionParserFactory.registrMissionParser(new TxtMissionParser());
         missionParserFactory.registrMissionParser(new XmlMissionParser());
         missionParserFactory.registrMissionParser(new YamlMissionParser());
+        missionParserFactory.registrMissionParser(new WithoutExtendtionMissionParser());
         MissionAnalyzer missionAnalyzer = new BaseMissionAnalyzer();
         MissionConcoleUI missionConcoleUI = new MissionConcoleUI(missionParserFactory, missionAnalyzer);
         missionConcoleUI.start();

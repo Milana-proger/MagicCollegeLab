@@ -64,7 +64,13 @@ public class YamlMissionParser implements MissionParser {
 
     @Override
     public boolean canBeParsedFromData(String data) {
-        return false;
+        if (data == null || data.isEmpty()) {
+            return false;
+        }
+        if (!data.contains(":")) {
+            return false;
+        }
+        return data.trim().startsWith("missionId:");
     }
 
     @Override

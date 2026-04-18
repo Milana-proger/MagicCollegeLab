@@ -14,6 +14,9 @@ public class Mission {
     private List<Technique> techniques;
     private String note;
     private EconomicAssessment economicAssessment;
+    private List<OperationTimeLine> operationTimeLines;
+    private List<EnemyActivity> enemyActivities;
+    private CivilianImpact civilianImpact;
 
     public Mission() {
         this.sorcerers = new ArrayList<>();
@@ -98,6 +101,30 @@ public class Mission {
 
     public void setEconomicAssessment(EconomicAssessment economicAssessment) {
         this.economicAssessment = economicAssessment;
+    }
+
+    public List<OperationTimeLine> getOperationTimeLines() {
+        return operationTimeLines;
+    }
+
+    public void setOperationTimeLines(List<OperationTimeLine> operationTimeLines) {
+        this.operationTimeLines = operationTimeLines;
+    }
+
+    public List<EnemyActivity> getEnemyActivities() {
+        return enemyActivities;
+    }
+
+    public void setEnemyActivities(List<EnemyActivity> enemyActivities) {
+        this.enemyActivities = enemyActivities;
+    }
+
+    public CivilianImpact getCivilianImpact() {
+        return civilianImpact;
+    }
+
+    public void setCivilianImpact(CivilianImpact civilianImpact) {
+        this.civilianImpact = civilianImpact;
     }
 
     @Override

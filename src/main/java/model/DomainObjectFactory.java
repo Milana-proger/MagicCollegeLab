@@ -56,18 +56,61 @@ public class DomainObjectFactory {
     private Long getLong(String string) {
         try {
             return Long.parseLong(string);
-        } catch (NumberFormatException e) {return null;}
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private Integer getInteger(String string) {
         try {
             return Integer.parseInt(string);
-        } catch (NumberFormatException e) {return null;}
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private Boolean getBoolean(String string) {
         try {
             return Boolean.parseBoolean(string);
-        } catch (NumberFormatException e) {return null;}
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
+
+    public OperationTimeLine createOperationTimeLine(String timestamp, String type, String description) {
+        if (timestamp == null || timestamp.trim().isEmpty()) {
+            throw new MissionBuilderException("Отсутствует время события");
+        }
+        if (type == null || type.trim().isEmpty()) {
+            throw new MissionBuilderException("Отсутствует тип события");
+        }
+        if (description == null || description.trim().isEmpty()) {
+            throw new MissionBuilderException("Отсутствует описание события");
+        }
+        return new OperationTimeLine(timestamp, type, description);
+    }
+
+    public EnemyActivity createEnemyActivity(String behaviorType,
+                                             String targetPriority,
+                                             String attackPatterns,
+                                             String mobility,
+                                             String escalationRisk) {
+        return new EnemyActivity(behaviorType, targetPriority, attackPatterns, mobility, escalationRisk);
+    }
+
+    public CivilianImpact createCivilianImpact(String evacuated,
+                                               String injured,
+                                               String missing,
+                                               String publicExposureRisk) {
+        return createCivilianImpact(getInteger(evacuated), getInteger(injured), getInteger(missing), publicExposureRisk);
+    }
+
+    public CivilianImpact createCivilianImpact(Integer evacuated,
+                                               Integer injured,
+                                               Integer missing,
+                                               String publicExposureRisk) {
+        return new CivilianImpact(evacuated, injured, missing, publicExposureRisk);
+    }
+
+
 }
